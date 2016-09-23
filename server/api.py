@@ -1,6 +1,13 @@
-from flask import Flask
+from flask import Flask, jsonify
 import json
 import pymongo
+from bson.objectid import ObjectId
+
+def newEncoder(o):
+    if type(o) == ObjectId:
+        return str(o)
+    return o.__str__
+
 
 app = Flask(__name__)
 
@@ -20,8 +27,7 @@ def add_word(word,translation,comment):
 def get_words():
     client = pymongo.MongoClient()
     db = client.myvocabulary
-    words = db.words
-    result = words.find()
-    return json.dumps(result)
+    words = list(db.words.find({}))
+    return json.dumps(words,default=newEncoder)
 
 app.run()
