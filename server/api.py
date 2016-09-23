@@ -1,4 +1,5 @@
 from flask import Flask
+import json
 import pymongo
 
 app = Flask(__name__)
@@ -10,10 +11,17 @@ def test():
 
 @app.route('/add_word/<word>/<translation>/<comment>',methods=['POST'])
 def add_word(word,translation,comment):
-    return "Hello, World!"
+    client = pymongo.MongoClient()
+    db = client.myvocabulary
+    db.words.insert({'word':word,'translation':translation,'comment':comment})
+    return "{'result':'OK'}"
 
 @app.route('/get_words',methods=['GET'])
-def test():
-    return "Hello, World!"
+def get_words():
+    client = pymongo.MongoClient()
+    db = client.myvocabulary
+    words = db.words
+    result = words.find()
+    return json.dumps(result)
 
 app.run()
